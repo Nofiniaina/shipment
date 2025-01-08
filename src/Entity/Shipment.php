@@ -34,6 +34,16 @@ class Shipment
     #[ORM\Column]
     private ?\DateTimeImmutable $updated_at = null;
 
+    #[ORM\ManyToOne(inversedBy: 'shipment')]
+    private ?Customer $customer = null;
+
+    #[ORM\ManyToOne(inversedBy: 'shipment')]
+    private ?Warehouse $warehouse = null;
+
+    #[ORM\ManyToOne(inversedBy: 'shipment')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Route $route = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -119,6 +129,42 @@ class Shipment
     public function setUpdatedAt(\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    public function getCustomer(): ?Customer
+    {
+        return $this->customer;
+    }
+
+    public function setCustomer(?Customer $customer): static
+    {
+        $this->customer = $customer;
+
+        return $this;
+    }
+
+    public function getWarehouse(): ?Warehouse
+    {
+        return $this->warehouse;
+    }
+
+    public function setWarehouse(?Warehouse $warehouse): static
+    {
+        $this->warehouse = $warehouse;
+
+        return $this;
+    }
+
+    public function getRoute(): ?Route
+    {
+        return $this->route;
+    }
+
+    public function setRoute(?Route $route): static
+    {
+        $this->route = $route;
 
         return $this;
     }

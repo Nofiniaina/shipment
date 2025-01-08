@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\RouteRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RouteRepository::class)]
@@ -24,6 +26,17 @@ class Route
 
     #[ORM\Column(nullable: true)]
     private ?int $estimated = null;
+
+    /**
+     * @var Collection<int, Shipment>
+     */
+    #[ORM\OneToMany(targetEntity: Shipment::class, mappedBy: 'route', orphanRemoval: true)]
+    private Collection $shipment;
+
+    public function __construct()
+    {
+        $this->shipment = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -74,6 +87,36 @@ class Route
     public function setEstimated(?int $estimated): static
     {
         $this->estimated = $estimated;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Shipment>
+     */
+    public function getShipment(): Collection
+    {
+        return $this->shipment;
+    }
+
+    public function addShipment(Shipment $shipment): static
+    {
+        if (!$this->shipment->contains($shipment)) {
+            $this->shipment->add($shipment);
+            $shipment->setRoute($this);
+        }
+
+        return $this;
+    }
+
+    public function removeShipment(Shipment $shipment): static
+    {
+        if ($this->shipment->removeElement($shipment)) {
+            // set the owning side to null (unless already changed)
+            if ($shipment->getRoute() === $this) {
+                $shipment->setRoute(null);
+            }
+        }
 
         return $this;
     }

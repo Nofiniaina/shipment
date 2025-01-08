@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\CustomerRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -28,6 +30,17 @@ class Customer
 
     #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
+
+    /**
+     * @var Collection<int, Shipment>
+     */
+    #[ORM\OneToMany(targetEntity: Shipment::class, mappedBy: 'customer')]
+    private Collection $shipment;
+
+    public function __construct()
+    {
+        $this->shipment = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -90,6 +103,36 @@ class Customer
     public function setCreatedAt(\DateTimeImmutable $created_at): static
     {
         $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Shipment>
+     */
+    public function getShipment(): Collection
+    {
+        return $this->shipment;
+    }
+
+    public function addShipment(Shipment $shipment): static
+    {
+        if (!$this->shipment->contains($shipment)) {
+            $this->shipment->add($shipment);
+            $shipment->setCustomer($this);
+        }
+
+        return $this;
+    }
+
+    public function removeShipment(Shipment $shipment): static
+    {
+        if ($this->shipment->removeElement($shipment)) {
+            // set the owning side to null (unless already changed)
+            if ($shipment->getCustomer() === $this) {
+                $shipment->setCustomer(null);
+            }
+        }
 
         return $this;
     }
